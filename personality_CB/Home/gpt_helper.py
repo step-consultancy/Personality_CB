@@ -17,7 +17,7 @@ INTRO_QUESTION = "Hello! I'm a chatbot designed to understand your personality. 
 # ✅ Generate dynamic multiple-choice questions after intro
 def select_best_questions(user_intro):
     prompt = f"""
-    Based on the following user intro: "{user_intro}", generate 4 personality assessment questions.
+    Based on the following user intro: "{user_intro}", generate 25 personality assessment questions.
     For each question, include 4 multiple-choice options.
 
     Output ONLY a valid JSON array like this:
