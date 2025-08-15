@@ -1,0 +1,491 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <title>AstroBot - Your Personal Astrologer</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700&family=Roboto:wght@400;500&display=swap"
+    rel="stylesheet">
+
+  <style>
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: linear-gradient(135deg, #8cd198, #fbc2eb);
+    }
+
+    #grad {
+      background: linear-gradient(135deg, #fbc2eb, #8cd198);
+    }
+
+    /* Custom styles for animations and scrollbar */
+    .font-orbitron {
+      font-family: 'Orbitron', sans-serif;
+    }
+
+    .custom-scrollbar::-webkit-scrollbar {
+      width: 8px;
+    }
+
+    .custom-scrollbar::-webkit-scrollbar-track {
+      background: #f1f1f1;
+    }
+
+    .custom-scrollbar::-webkit-scrollbar-thumb {
+      background-color: #ccc;
+      border-radius: 10px;
+    }
+
+    .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+      background-color: #aaa;
+    }
+
+    @keyframes pop-in {
+      from {
+        transform: scale(0.8);
+        opacity: 0;
+      }
+
+      to {
+        transform: scale(1);
+        opacity: 1;
+      }
+    }
+
+    .animate-pop-in {
+      animation: pop-in 0.3s ease-out forwards;
+    }
+
+    @keyframes bounce {
+
+      0%,
+      80%,
+      100% {
+        transform: scale(0);
+      }
+
+      40% {
+        transform: scale(1.0);
+      }
+    }
+
+    .animate-bounce-custom {
+      animation: bounce 1.4s infinite ease-in-out both;
+    }
+  </style>
+</head>
+
+<body class="flex flex-col justify-center items-center min-h-screen p-4">
+
+  <!-- Main Chat Container -->
+  <div id="grad"
+    class="w-full md:w-3/4 lg:w-3/5 xl:w-1/2 max-w-3xl h-[90vh] max-h-[800px] flex flex-col bg-white rounded-2xl shadow-2xl border border-gray-200 overflow-hidden">
+
+    <!-- Chat Header -->
+    <div
+      class="relative flex-shrink-0 bg-gradient-to-br from-blue-600 to-blue-800 text-white p-5 shadow-md flex justify-between items-center">
+      <div class="flex items-center space-x-1">
+        <!-- Mute/Unmute Button -->
+        <button id="toggle-audio-btn"
+          class="w-10 h-10 flex items-center justify-center rounded-full transition-colors duration-200 hover:bg-white/15"
+          title="Toggle Audio">
+          <svg id="speaker-on-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+            fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+            class="lucide lucide-volume-2">
+            <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" />
+            <path d="M15.54 8.46a5 5 0 0 1 0 7.07" />
+            <path d="M19.07 4.93a10 10 0 0 1 0 14.14" />
+          </svg>
+          <svg id="speaker-off-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+            fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+            class="lucide lucide-volume-x hidden">
+            <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" />
+            <line x1="23" x2="17" y1="9" y2="15" />
+            <line x1="17" x2="23" y1="9" y2="15" />
+          </svg>
+        </button>
+        <!-- Reset Chat Button -->
+        <button id="reset-chat-btn"
+          class="w-10 h-10 flex items-center justify-center rounded-full transition-colors duration-200 hover:bg-white/15"
+          title="Reset Chat">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+            class="lucide lucide-rotate-cw">
+            <path d="M21 2v6h-6" />
+            <path d="M3 12a9 9 0 1 1 9 9 9.75 9.75 0 0 1-6.74-2.74L3 12" />
+          </svg>
+        </button>
+      </div>
+      <h2 class="font-orbitron text-2xl absolute left-1/2 -translate-x-1/2">✨ AstroBot ✨</h2>
+      <div class="flex items-center space-x-2">
+        <button id="conversational-mode-btn" type="button"
+          class="px-3 py-1.5 text-sm text-white border border-white/70 rounded-full hover:bg-white/15 transition-colors">
+          Conversational Chat
+        </button>
+        <a href="{% url 'logout' %}"
+          class="py-1.5 px-4 border border-white/70 rounded-full text-white text-sm font-medium transition-colors duration-200 hover:bg-white/15 hover:border-white">Logout</a>
+      </div>
+    </div>
+
+    <!-- Chat Message Box -->
+    <div id="chat-box" class="flex-grow p-4 sm:p-6 overflow-y-auto flex flex-col gap-4 custom-scrollbar">
+      <!-- Messages are injected here by JavaScript -->
+    </div>
+
+    <!-- Chat Input Area -->
+    <div class="flex-shrink-0 flex flex-col p-3 sm:p-4 bg-gray-100 border-t border-gray-200">
+      <!-- Typing indicator will be placed here -->
+      <div id="typing-indicator-container" class="h-8"></div>
+      <div class="flex items-center gap-3">
+        <input type="text" id="user-input" placeholder="Type or press mic to talk..." autocomplete="off"
+          class="flex-grow bg-white border border-gray-300 rounded-full py-2.5 px-5 text-gray-800 text-base focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/50 transition-all duration-200 disabled:bg-gray-200 disabled:cursor-not-allowed">
+        <!-- Microphone Button -->
+        <button id="mic-btn" title="Speak"
+          class="flex-shrink-0 w-12 h-12 flex justify-center items-center bg-gray-200 text-gray-600 rounded-full cursor-pointer transition-colors duration-300 hover:bg-gray-300">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z" />
+            <path d="M19 10v2a7 7 0 0 1-14 0v-2" />
+            <line x1="12" x2="12" y1="19" y2="22" />
+          </svg>
+        </button>
+        <button id="send-btn" title="Send"
+          class="flex-shrink-0 w-12 h-12 flex justify-center items-center bg-blue-600 text-white rounded-full cursor-pointer transition-colors duration-300 hover:bg-blue-700 disabled:bg-blue-400 disabled:cursor-not-allowed">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="22" y1="2" x2="11" y2="13"></line>
+            <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+          </svg>
+        </button>
+        <button onclick="window.location.href = '/finalResult/'"
+          class="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-lg">
+          Next
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Hidden form -->
+  <form method="post" id="astro-form" action="{% url 'astro' %}" class="hidden">
+    {% csrf_token %}
+    <input type="text" name="dob" id="hidden-dob">
+    <input type="text" name="tob" id="hidden-tob">
+    <input type="text" name="place" id="hidden-place">
+  </form>
+
+  <!-- Hidden Django response -->
+  {% if response %}
+  <div id="django-response" class="hidden">
+    <h2 class="text-xl font-semibold mb-3 font-orbitron">🪔 Your Astrological Report</h2>
+    <ul class="list-none space-y-4 text-left">
+      {% for point in response %}
+      <li>{{ point| safe}}</li>
+      {% endfor %}
+    </ul>
+  </div>
+  {% endif %}
+
+  <button onclick="goNext()" class="bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-4 rounded-lg hidden">
+    Next
+  </button>
+
+  <script>
+    function goNext() {
+      window.location.href = 'finalResult'; // Change to your destination
+    }
+  </script>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      // --- Element References ---
+      const chatBox = document.getElementById('chat-box');
+      const userInput = document.getElementById('user-input');
+      const sendBtn = document.getElementById('send-btn');
+      const micBtn = document.getElementById('mic-btn');
+      const toggleAudioBtn = document.getElementById('toggle-audio-btn');
+      const speakerOnIcon = document.getElementById('speaker-on-icon');
+      const speakerOffIcon = document.getElementById('speaker-off-icon');
+      const conversationalModeBtn = document.getElementById('conversational-mode-btn');
+      const resetChatBtn = document.getElementById('reset-chat-btn');
+      const typingIndicatorContainer = document.getElementById('typing-indicator-container');
+
+      // --- State ---
+      let conversationState = 'awaiting_dob';
+      let userDetails = { dob: '', tob: '', place: '' };
+      let isMuted = false;
+      let isRecording = false;
+      let isConversationalMode = false;
+
+      // --- Web Speech API Setup ---
+      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+      const recognition = SpeechRecognition ? new SpeechRecognition() : null;
+      const speechSynthesis = window.speechSynthesis;
+      let voices = [];
+
+      function loadVoices() {
+        voices = speechSynthesis.getVoices();
+      }
+      speechSynthesis.onvoiceschanged = loadVoices;
+      loadVoices();
+
+      // --- Bot Questions ---
+      const botQuestions = {
+        dob: "Welcome to AstroBot! I can generate your personalized astrological report. To begin, please enter your <b>Date of Birth</b> (e.g., YYYY-MM-DD).",
+        tob: "Great! Now, what is your <b>Time of Birth</b>? Please use a 24-hour format (e.g., 14:30).",
+        place: "Perfect. Finally, what is your <b>Place of Birth</b>? (e.g., New York, USA)",
+        processing: "Thank you! I have all the details. Casting the stars for you now... ✨",
+      };
+
+      // --- Core Functions ---
+      function speakMessage(text) {
+        if (isMuted || !speechSynthesis) return;
+        const tempDiv = document.createElement('div');
+        tempDiv.innerHTML = text;
+        const cleanText = tempDiv.textContent || tempDiv.innerText || "";
+        speechSynthesis.cancel();
+        const utterance = new SpeechSynthesisUtterance(cleanText);
+        const googleVoice = voices.find(voice => voice.name.includes('Google') && voice.lang.startsWith('en'));
+        utterance.voice = googleVoice || voices.find(voice => voice.lang.startsWith('en')) || voices[0];
+        speechSynthesis.speak(utterance);
+      }
+
+      function addMessage(text, sender) {
+        const messageElement = document.createElement('div');
+        const baseClasses = ['max-w-[85%]', 'md:max-w-[80%]', 'py-3', 'px-5', 'rounded-2xl', 'break-words', 'leading-relaxed', 'animate-pop-in'];
+
+        if (sender === 'user') {
+          messageElement.classList.add(...baseClasses, 'bg-blue-600', 'text-white', 'self-end', 'rounded-br-lg');
+        } else {
+          messageElement.classList.add(...baseClasses, 'bg-gray-200', 'text-gray-800', 'self-start', 'rounded-bl-lg');
+          speakMessage(text);
+        }
+        messageElement.innerHTML = text;
+        chatBox.appendChild(messageElement);
+        chatBox.scrollTop = chatBox.scrollHeight;
+      }
+
+      function showTyping(show) {
+        if (show) {
+          typingIndicatorContainer.innerHTML = `<div class="flex items-center gap-1.5 h-6"><span class="h-2 w-2 bg-gray-400 rounded-full animate-bounce-custom" style="animation-delay: -0.32s;"></span><span class="h-2 w-2 bg-gray-400 rounded-full animate-bounce-custom" style="animation-delay: -0.16s;"></span><span class="h-2 w-2 bg-gray-400 rounded-full animate-bounce-custom"></span></div>`;
+          chatBox.scrollTop = chatBox.scrollHeight;
+        } else {
+          typingIndicatorContainer.innerHTML = '';
+        }
+      }
+
+      function askNextQuestion() {
+        // Show typing indicator to simulate bot thinking
+        showTyping(true);
+        setTimeout(() => {
+          showTyping(false);
+          let question = '';
+          if (conversationState === 'awaiting_dob') {
+            question = botQuestions.dob;
+            userInput.placeholder = 'YYYY-MM-DD';
+          } else if (conversationState === 'awaiting_tob') {
+            question = botQuestions.tob;
+            userInput.placeholder = 'HH:MM (24-hour)';
+          } else if (conversationState === 'awaiting_place') {
+            question = botQuestions.place;
+            userInput.placeholder = 'e.g., London, UK';
+          }
+          addMessage(question, 'bot');
+          userInput.focus();
+        }, 1200);
+      }
+
+      function handleUserInput() {
+        const text = userInput.value.trim();
+        if (!text || userInput.disabled) return;
+
+        addMessage(text, 'user');
+        userInput.value = ''; // Clear input immediately
+        userInput.disabled = true; // Disable input while bot is "thinking"
+
+        switch (conversationState) {
+          case 'awaiting_dob': 
+            userDetails.dob = text; 
+            conversationState = 'awaiting_tob'; 
+            askNextQuestion(); 
+            break;
+          case 'awaiting_tob': 
+            userDetails.tob = text; 
+            conversationState = 'awaiting_place'; 
+            askNextQuestion(); 
+            break;
+          case 'awaiting_place': 
+            userDetails.place = text; 
+            conversationState = 'processing'; 
+            submitDetails(); 
+            break;
+        }
+        userInput.disabled = false; // Re-enable after processing starts
+      }
+
+      function submitDetails() {
+        showTyping(true); // Show typing before saying "processing"
+        setTimeout(() => {
+          showTyping(false);
+          addMessage(botQuestions.processing, 'bot');
+          userInput.disabled = true;
+          sendBtn.disabled = true;
+          micBtn.disabled = true;
+
+          // Fill hidden form
+          document.getElementById('hidden-dob').value = userDetails.dob;
+          document.getElementById('hidden-tob').value = userDetails.tob;
+          document.getElementById('hidden-place').value = userDetails.place;
+
+          // Submit the form after a short delay
+          setTimeout(() => {
+            document.getElementById('astro-form').submit();
+          }, 1500);
+
+        }, 1500);
+      }
+
+      function resetChat() {
+        chatBox.innerHTML = '';
+        speechSynthesis.cancel();
+        conversationState = 'awaiting_dob';
+        userDetails = { dob: '', tob: '', place: '' };
+        userInput.disabled = false;
+        sendBtn.disabled = false;
+        micBtn.disabled = false;
+        micBtn.classList.remove('cursor-not-allowed', 'opacity-50');
+        document.getElementById('hidden-dob').value = '';
+        document.getElementById('hidden-tob').value = '';
+        document.getElementById('hidden-place').value = '';
+        showTyping(false);
+        askNextQuestion();
+      }
+
+      // --- Event Handlers ---
+      sendBtn.addEventListener('click', handleUserInput);
+      userInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') handleUserInput(); });
+      resetChatBtn.addEventListener('click', resetChat);
+
+      toggleAudioBtn.addEventListener('click', () => {
+        isMuted = !isMuted;
+        speakerOnIcon.classList.toggle('hidden', isMuted);
+        speakerOffIcon.classList.toggle('hidden', !isMuted);
+        if (isMuted) speechSynthesis.cancel();
+      });
+
+      conversationalModeBtn.addEventListener('click', () => {
+        isConversationalMode = !isConversationalMode;
+        if (isConversationalMode) {
+          conversationalModeBtn.textContent = 'Manual Chat';
+          userInput.style.display = 'none';
+          sendBtn.style.display = 'none';
+          if (recognition) recognition.start();
+        } else {
+          conversationalModeBtn.textContent = 'Conversational Chat';
+          userInput.style.display = 'block';
+          sendBtn.style.display = 'block';
+          if (recognition) recognition.stop();
+        }
+      });
+
+      // --- Speech Recognition Logic ---
+      if (recognition) {
+        recognition.continuous = true;
+        recognition.interimResults = true;
+        recognition.lang = 'en-US';
+
+        micBtn.addEventListener('click', () => {
+          if (isRecording) {
+            recognition.stop();
+          } else {
+            recognition.start();
+          }
+        });
+
+        recognition.onstart = () => {
+          isRecording = true;
+          micBtn.classList.remove('bg-gray-200', 'hover:bg-gray-300');
+          micBtn.classList.add('bg-red-500', 'text-white', 'animate-pulse');
+          userInput.placeholder = 'Listening...';
+        };
+
+        recognition.onend = () => {
+          isRecording = false;
+          micBtn.classList.add('bg-gray-200', 'hover:bg-gray-300');
+          micBtn.classList.remove('bg-red-500', 'text-white', 'animate-pulse');
+          userInput.placeholder = 'Type or press mic to talk...';
+          if (isConversationalMode) {
+            try { recognition.start(); } catch(e) {}
+          }
+        };
+
+        recognition.onresult = (event) => {
+          let transcript = '';
+          for (let i = event.resultIndex; i < event.results.length; ++i) {
+            if (event.results[i].isFinal) {
+              transcript += event.results[i][0].transcript;
+            }
+          }
+          if (transcript) {
+            userInput.value = transcript;
+            handleUserInput();
+          }
+        };
+
+        recognition.onerror = (event) => {
+          console.error('Speech recognition error:', event.error);
+          isRecording = false;
+        };
+      } else {
+        micBtn.style.display = 'none';
+        toggleAudioBtn.style.display = 'none';
+        conversationalModeBtn.style.display = 'none';
+        console.warn("Speech Recognition or Synthesis not supported by this browser.");
+      }
+
+      // --- Initial Load Logic ---
+      const djangoResponseDiv = document.getElementById('django-response');
+      if (djangoResponseDiv && djangoResponseDiv.innerHTML.trim() !== "") {
+        // If the page loaded with a response, reconstruct the conversation
+        const submittedData = {
+          dob: "{{ request.POST.dob }}",
+          tob: "{{ request.POST.tob }}",
+          place: "{{ request.POST.place }}",
+        };
+
+        addMessage(botQuestions.dob, 'bot');
+        if (submittedData.dob) addMessage(submittedData.dob, 'user');
+        addMessage(botQuestions.tob, 'bot');
+        if (submittedData.tob) addMessage(submittedData.tob, 'user');
+        addMessage(botQuestions.place, 'bot');
+        if (submittedData.place) addMessage(submittedData.place, 'user');
+        addMessage(botQuestions.processing, 'bot');
+
+        // Show typing indicator while "generating" the final report
+        showTyping(true);
+        setTimeout(() => {
+          showTyping(false);
+          addMessage(djangoResponseDiv.innerHTML, 'bot');
+          userInput.placeholder = 'Press the reset button to start over.';
+          userInput.disabled = true;
+          sendBtn.disabled = true;
+          micBtn.disabled = true;
+          micBtn.classList.add('cursor-not-allowed', 'opacity-50');
+        }, 2000);
+
+      } else {
+        // Otherwise, start a new conversation
+        askNextQuestion();
+      }
+    });
+  </script>
+</body>
+
+</html>

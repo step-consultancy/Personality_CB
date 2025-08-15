@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Final Result</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Fade-in animation */
+        .fade-in {
+            animation: fadeIn 0.7s ease-in-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-gray-100 to-white min-h-screen flex items-center justify-center p-6">
+
+    <!-- Spinner (shown on load) -->
+    <div id="loader" class="flex flex-col items-center justify-center text-center">
+        <svg class="animate-spin h-12 w-12 text-blue-600 mb-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"></path>
+        </svg>
+        <p class="text-lg text-gray-600 font-medium">Preparing your final result...</p>
+    </div>
+
+    <!-- Final response (initially hidden) -->
+    <div id="result" class="hidden max-w-3xl mx-auto bg-white shadow-xl rounded-xl p-8 fade-in">
+        <h1 class="text-2xl font-semibold text-blue-700 mb-4 text-center">📝 Final Personality & Astro Summary</h1>
+        <div class="text-gray-800 leading-relaxed text-lg whitespace-pre-line" id="finalResponse">
+            {{ final_response }}
+        </div>
+        
+        <!-- Buttons Container -->
+        <div class="flex justify-between items-center mt-8 pt-4 border-t border-gray-200">
+            <!-- Read Aloud Button -->
+            <button id="readAloudButton" class="bg-green-500 text-white font-bold py-2 px-4 rounded-lg hover:bg-green-600 transition">
+                Read Aloud
+            </button>
+            
+            <!-- Start Analysis Button (in the corner) -->
+            <button id="startAnalysisButton" class="bg-blue-600 text-white font-bold py-2 px-4 rounded-lg shadow-lg hover:bg-blue-700 transition-transform transform hover:scale-105">
+                Start Analysis Again
+            </button>
+        </div>
+    </div>
+
+    <script>
+        window.addEventListener('DOMContentLoaded', () => {
+            const loader = document.getElementById('loader');
+            const result = document.getElementById('result');
+            const finalResponse = document.getElementById('finalResponse');
+            const readAloudButton = document.getElementById('readAloudButton');
+            const startAnalysisButton = document.getElementById('startAnalysisButton');
+
+            // Simulate initial loading when the page opens
+            setTimeout(() => {
+                loader.classList.add('hidden');
+                result.classList.remove('hidden');
+            }, 1200);
+
+            // Listener for the "Read Aloud" button
+            readAloudButton.addEventListener('click', () => {
+                const textToSpeak = finalResponse.innerText;
+                if ('speechSynthesis' in window) {
+                    // Cancel any previous speech before starting a new one
+                    window.speechSynthesis.cancel();
+                    const utterance = new SpeechSynthesisUtterance(textToSpeak);
+                    window.speechSynthesis.speak(utterance);
+                } else {
+                    alert('Sorry, your browser does not support text-to-speech.');
+                }
+            });
+
+            // Listener for the "Start Analysis Again" button
+            startAnalysisButton.addEventListener('click', () => {
+                window.location.href='/analysis/'
+                // Hide the result and show the loader
+                result.classList.add('hidden');
+                loader.classList.remove('hidden');
+
+                // Simulate re-analysis delay
+                setTimeout(() => {
+                    loader.classList.add('hidden');
+                    result.classList.remove('hidden');
+                }, 1200);
+            });
+        });
+    </script>
+</body>
+</html>
