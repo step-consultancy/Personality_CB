@@ -28,31 +28,36 @@ def select_best_questions(user_intro):
       }},
       ...
     ]
-
+    
     Do NOT add any commentary or markdown (no ```json or explanation).
     """
 
     try:
         response = openai.ChatCompletion.create(
             model="gpt-4-1106-preview",  # Can change to gpt-3.5-turbo for lower cost
-            messages=[
-                {"role": "system", "content": "You are a JSON-only response generator."},
-                {"role": "user", "content": prompt}
-            ],
+            messages=[{"role": "system", "content": "You are a JSON-only response generator."},
+                      {"role": "user", "content": prompt}],
             temperature=0.7
         )
 
         raw = response.choices[0].message["content"].strip()
 
-        # Remove markdown wrappers if present
+        # If the response starts with markdown or other unexpected content, strip it
         if raw.startswith("```json") or raw.startswith("```"):
-            raw = raw.strip("`")
+            raw = raw.strip("`").strip()
             raw = "\n".join(line for line in raw.splitlines() if not line.strip().startswith("json"))
 
-        return json.loads(raw)
+        # Attempt to parse as JSON
+        try:
+            return json.loads(raw)
+        except json.JSONDecodeError:
+            # If JSON fails, print raw and fallback
+            print("❌ OpenAI returned malformed JSON:\n\n" + raw)
+            return []
 
-    except json.JSONDecodeError:
-        print("❌ OpenAI returned malformed JSON:\n\n" + raw)
+    except Exception as e:
+        print(f"Error occurred: {e}")
+        # Fallback to default set of questions
         return [
             {"question": "What's one of your favorite hobbies?", "options": ["Reading", "Sports", "Gaming", "Crafting"]},
             {"question": "Are you more of an early bird or a night owl?", "options": ["Early bird", "Night owl", "Both", "Neither"]}
@@ -61,7 +66,7 @@ def select_best_questions(user_intro):
 # ✅ Generate full personality profile
 def generate_personality_profile(user_intro, qa_pairs):
     questions_formatted = "\n".join([f"{i+1}. Q: {q}\nA: {a}" for i, (q, a) in enumerate(qa_pairs)])
-    
+
     prompt = f"""
     Based on the following introduction and answers, identify the user's dominant personality type in ONE WORD.
     Then, provide a short personality profile (3-4 sentences).
@@ -88,16 +93,17 @@ def generate_personality_profile(user_intro, qa_pairs):
     Profile: <3-4 sentence paragraph>
     """
 
-    response = openai.ChatCompletion.create(
-        model="gpt-4-1106-preview",
-        messages=[
-            {"role": "system", "content": "You are a personality analyst."},
-            {"role": "user", "content": prompt}
-        ],
-        temperature=0.7
-    )
-
-    return response.choices[0].message["content"].strip()
+    try:
+        response = openai.ChatCompletion.create(
+            model="gpt-4-1106-preview",
+            messages=[{"role": "system", "content": "You are a personality analyst."},
+                      {"role": "user", "content": prompt}],
+            temperature=0.7
+        )
+        return response.choices[0].message["content"].strip()
+    except Exception as e:
+        print(f"Error generating personality profile: {e}")
+        return "Unable to generate personality profile at this time."
 
 # ✅ Friendly one-liner feedback
 def generate_feedback(question, answer):
@@ -111,13 +117,15 @@ def generate_feedback(question, answer):
     Example: "That's a great way to handle things!" or "Sounds like you’re someone who values honesty!"
     """
 
-    response = openai.ChatCompletion.create(
-        model="gpt-4-1106-preview",
-        messages=[
-            {"role": "system", "content": "You are a warm and encouraging personality chatbot."},
-            {"role": "user", "content": prompt}
-        ],
-        temperature=0.8
-    )
+    try:
+        response = openai.ChatCompletion.create(
+            model="gpt-4-1106-preview",
+            messages=[{"role": "system", "content": "You are a warm and encouraging personality chatbot."},
+                      {"role": "user", "content": prompt}],
+            temperature=0.8
+        )
+        return response.choices[0].message["content"].strip()
+    except Exception as e:
+        print(f"Error generating feedback: {e}")
+        return "That sounds interesting!"
 
-    return response.choices[0].message["content"].strip()

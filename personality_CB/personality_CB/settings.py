@@ -25,7 +25,7 @@ SECRET_KEY = 'django-insecure-!sokobdah)#x3db6^78$#1(obd@pj68*o84#9m4hycw58b+j-)
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['https://personality-cb-ihx2.onrender.com', 'personality-cb-ihx2.onrender.com']
+ALLOWED_HOSTS = ['https://personality-cb-ihx2.onrender.com', 'personality-cb-ihx2.onrender.com', '*']
 
 # Application definition
 
