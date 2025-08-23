@@ -56,90 +56,137 @@
     .message-bubble {
       animation: fade-in-slide-up 0.3s ease-out;
     }
+    /* Add this to your main CSS file or in a <style> tag */
+.animated-gradient-bg {
+  /* Define a multi-stop, diagonal gradient */
+  background: linear-gradient(
+    120deg, 
+    #1e1b4b, /* indigo-950 */
+    #4338ca, /* violet-700 */
+    #be185d, /* fuchsia-700 */
+    #309c35ff  /* slate-900 */
+  );
+  /* Make the background much larger than the container */
+  background-size: 300% 300%;
+  /* Apply the animation */
+  animation: gradient-flow 20s ease-in-out infinite;
+}
+
+@keyframes gradient-flow {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
   </style>
   {{ questions|json_script:"questions-data" }}
   {{ options|json_script:"options-data" }}
 </head>
 
-<body class="bg-gray-100">
-  <div class="relative w-full md:w-2/3 h-screen mx-auto bg-white sm:rounded-2xl sm:shadow-2xl flex flex-col" id="grad">
+<body class=" animated-gradient-bg bg-gray-100">
+<!-- For the best visual effect, add this class to your <body> tag: class="bg-slate-900" -->
 
-    <!-- Header -->
-    <div class="p-2 border-b flex items-center justify-end bg-white sm:rounded-t-2xl sticky top-0 z-10 space-x-2">
-      <button id="continuous-mic-btn" type="button"
-        class="flex items-center space-x-2 px-3 py-1 text-sm text-gray-600 hover:bg-gray-200 rounded-full transition-colors"
-        title="Toggle Continuous Mic Mode">
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"
+<div
+  class="relative w-full md:w-2/3 h-screen mx-auto sm:rounded-2xl sm:shadow-2xl flex flex-col overflow-hidden"
+  id="grad">
+
+  <!-- Header -->
+  <div
+    class="p-4 border-b border-white/10 flex items-center justify-end bg-slate-900/70 backdrop-blur-sm sm:rounded-t-2xl sticky top-0 z-10 space-x-2">
+    <button id="continuous-mic-btn" type="button"
+      class="flex items-center space-x-2 px-4 py-2 text-sm font-medium text-slate-300 bg-white/10 hover:bg-white/20 rounded-full transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-violet-400"
+      title="Toggle Continuous Mic Mode">
+      <svg xmlns="http://www.w.org/2000/svg" class="h-5 w-5 text-slate-400" fill="none" viewBox="0 0 24 24"
+        stroke="currentColor" stroke-width="2">
+        <path stroke-linecap="round" stroke-linejoin="round"
+          d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />
+      </svg>
+      <span id="continuous-mic-text">Conversational Chat</span>
+    </button>
+    <button id="voice-toggle-btn" type="button"
+      class="p-2 text-slate-400 hover:bg-white/10 hover:text-violet-400 rounded-full transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-violet-400"
+      title="Toggle Voice Output">
+      <svg id="voice-on-icon" xmlns="http://www.w.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24"
+        stroke="currentColor" stroke-width="2">
+        <path stroke-linecap="round" stroke-linejoin="round"
+          d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" />
+      </svg>
+      <svg id="voice-off-icon" xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 hidden" fill="none" viewBox="0 0 24 24"
+        stroke="currentColor" stroke-width="2">
+        <path stroke-linecap="round" stroke-linejoin="round"
+          d="M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z"
+          clip-rule="evenodd" />
+        <path stroke-linecap="round" stroke-linejoin="round" d="M17 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2" />
+      </svg>
+    </button>
+    <form method="post" action="{% url 'logout' %}">
+      {% csrf_token %}
+      <button type="submit"
+        class="p-2 text-slate-400 hover:bg-white/10 hover:text-violet-400 rounded-full transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-violet-400"
+        title="Logout">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"
           stroke-width="2">
           <path stroke-linecap="round" stroke-linejoin="round"
-            d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />
-        </svg>
-        <span id="continuous-mic-text">Conversational Chat</span>
-      </button>
-      <button id="voice-toggle-btn" type="button"
-        class="p-1 text-gray-500 hover:bg-gray-100 hover:text-purple-600 rounded-full transition-colors"
-        title="Toggle Voice Output">
-        <svg id="voice-on-icon" xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24"
-          stroke="currentColor" stroke-width="2">
-          <path stroke-linecap="round" stroke-linejoin="round"
-            d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" />
-        </svg>
-        <svg id="voice-off-icon" xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 hidden" fill="none"
-          viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-          <path stroke-linecap="round" stroke-linejoin="round"
-            d="M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z"
-            clip-rule="evenodd" />
-          <path stroke-linecap="round" stroke-linejoin="round" d="M17 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2" />
+            d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
         </svg>
       </button>
-      <form method="post" action="{% url 'logout' %}">
-        {% csrf_token %}
-        <button type="submit"
-          class="p-2 text-gray-500 hover:bg-gray-100 hover:text-purple-600 rounded-full transition-colors"
-          title="Logout">
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"
-            stroke-width="2">
-            <path stroke-linecap="round" stroke-linejoin="round"
-              d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
-          </svg>
-        </button>
-      </form>
-    </div>
-
-    <div id="chat-history" class="flex-1 p-4 space-y-4 overflow-y-auto">
-      {% if profile %}
-      <div class="p-4 sm:p-5 bg-purple-50 rounded-lg shadow-inner message-bubble">
-        <h2 class="text-lg sm:text-xl font-bold text-purple-800 mb-3 border-b-2 border-purple-200 pb-2">Your Personality
-          Profile</h2>
-        <div id="profile-content-text" class="text-sm sm:text-base whitespace-pre-wrap text-gray-700">{{ profile|safe }}
-        </div>
-      </div>
-      {% endif %}
-    </div>
-
-    <div id="action-area" class="p-3 sm:p-4 border-t bg-gray-50 sm:rounded-b-2xl">
-      {% if profile %}
-      <div class="text-center space-y-3">
-        <a href="/home/"
-          class="inline-block py-3 px-8 bg-purple-600 text-white rounded-full font-semibold hover:bg-purple-700 transition transform hover:-translate-y-0.5 shadow-md">Start
-          Over</a>
-        <a href="/astro/"
-          class="inline-block py-3 px-8 bg-purple-600 text-white rounded-full font-semibold hover:bg-purple-700 transition transform hover:-translate-y-0.5 shadow-md">Astro
-          Analysis</a>
-      </div>
-      {% else %}
-      <div id="quick-reply-container"></div>
-      <div id="typing-indicator" class="hidden">
-        <div class="flex items-center space-x-2 p-2">
-          <div class="w-2 h-2 bg-purple-400 rounded-full animate-pulse"></div>
-          <div class="w-2 h-2 bg-purple-400 rounded-full animate-pulse [animation-delay:0.2s]"></div>
-          <div class="w-2 h-2 bg-purple-400 rounded-full animate-pulse [animation-delay:0.4s]"></div>
-          <span class="text-sm text-gray-500">Bot is typing...</span>
-        </div>
-      </div>
-      {% endif %}
-    </div>
+    </form>
   </div>
+
+  <div id="chat-history" class="animated-gradient-bg flex-1 p-6 space-y-6 overflow-y-auto">
+    {% if profile %}
+    <div
+      class="p-5 sm:p-6 bg-indigo-900/30 backdrop-blur-lg border border-white/10 rounded-2xl shadow-lg message-bubble">
+      <div class="flex items-center mb-4 border-b-2 border-white/10 pb-3">
+        <!-- Sparkle Icon -->
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7 mr-3 text-violet-300" viewBox="0 0 20 20"
+          fill="currentColor">
+          <path
+            d="M5 4a2 2 0 00-2 2v6a2 2 0 002 2h10a2 2 0 002-2V6a2 2 0 00-2-2H5zM5 14a2 2 0 00-2-2V6a2 2 0 002 2v6zm10 0V8a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h10a2 2 0 002-2z"
+            clip-rule="evenodd" />
+          <path d="M9 4.804A7.968 7.968 0 005.5 4c-1.255 0-2.443.29-3.5.804v10.392C2.057 15.71 3.245 16 4.5 16h11c1.255 0 2.443-.29 3.5-.804V4.804A7.968 7.968 0 0014.5 4c-1.255 0-2.443.29-3.5.804V12a1 1 0 11-2 0V4.804z" />
+        </svg>
+        <h2 class="text-xl sm:text-2xl font-bold text-slate-100 tracking-tight">Your Personality Profile</h2>
+      </div>
+      <div id="profile-content-text" class="text-base whitespace-pre-wrap text-slate-300 leading-relaxed">
+        {{ profile|safe }}
+      </div>
+    </div>
+    {% endif %}
+  </div>
+
+  <div id="action-area"
+    class="p-4 border-t border-white/10 bg-slate-900/50 backdrop-blur-sm sm:rounded-b-2xl">
+    {% if profile %}
+    <div class="text-center space-y-3 sm:flex sm:justify-center sm:gap-4">
+      <a href="/home/"
+        class="inline-block py-3 px-8 bg-gradient-to-r from-slate-700 to-slate-800 text-white rounded-full font-semibold border border-slate-600 hover:border-slate-500 transition-all duration-300 transform hover:scale-105 shadow-md focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-900 focus-visible:ring-white">
+        Start Over
+      </a>
+      <a href="/astro/"
+        class="inline-block py-3 px-8 bg-gradient-to-r from-violet-600 to-fuchsia-500 text-white rounded-full font-semibold transition-all duration-300 transform hover:scale-105 hover:shadow-lg hover:shadow-violet-500/40 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-900 focus-visible:ring-fuchsia-400">
+        Astro Analysis
+      </a>
+    </div>
+    {% else %}
+    <div id="quick-reply-container"></div>
+    <div id="typing-indicator" class="hidden">
+      <div class="inline-flex items-center space-x-2 bg-slate-800/80 rounded-full px-4 py-2">
+        <div class="w-2.5 h-2.5 bg-violet-400 rounded-full animate-pulse"></div>
+        <div class="w-2.5 h-2.5 bg-violet-400 rounded-full animate-pulse [animation-delay:0.2s]"></div>
+        <div class="w-2.5 h-2.5 bg-violet-400 rounded-full animate-pulse [animation-delay:0.4s]"></div>
+        <span class="text-sm font-medium text-slate-400">Bot is typing...</span>
+      </div>
+    </div>
+    {% endif %}
+  </div>
+
+</div>
 
   <script>
     // --- 1. Universal Setup ---

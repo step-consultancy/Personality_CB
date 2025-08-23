@@ -80,122 +80,152 @@
     .animate-bounce-custom {
       animation: bounce 1.4s infinite ease-in-out both;
     }
+    /* Add this to your main CSS file or in a <style> tag */
+
+/* Animated Gradient Background */
+.animated-gradient-bg {
+  background: linear-gradient(
+    135deg, 
+    #1e1b4b, /* indigo-950 */
+    #4338ca, /* violet-700 */
+    #be185d, /* fuchsia-700 */
+    #0f172a  /* slate-900 */
+  );
+  background-size: 300% 300%;
+  animation: gradient-flow 20s ease-in-out infinite;
+}
+
+@keyframes gradient-flow {
+  0%   { background-position: 0% 50%; }
+  50%  { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+/* Custom Dark Scrollbar for the Chat Box */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 8px;
+}
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background-color: rgba(255, 255, 255, 0.2);
+  border-radius: 10px;
+  border: 2px solid transparent;
+  background-clip: content-box;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(255, 255, 255, 0.4);
+}
   </style>
 </head>
 
 <body class="flex flex-col justify-center items-center min-h-screen p-4">
+<!-- 
+  RECOMMENDED BODY SETUP for perfect centering on desktop and full-screen on mobile:
+  <body class="bg-slate-900 sm:flex sm:items-center sm:justify-center sm:min-h-screen sm:p-4"> 
+-->
 
-  <!-- Main Chat Container -->
-  <div id="grad"
-    class="w-full md:w-3/4 lg:w-3/5 xl:w-1/2 max-w-3xl h-[90vh] max-h-[800px] flex flex-col bg-white rounded-2xl shadow-2xl border border-gray-200 overflow-hidden">
+<!-- Main Chat Container -->
+<div id="grad"
+  class="w-screen h-screen flex flex-col overflow-hidden animated-gradient-bg 
+         sm:w-full md:w-3/4 lg:w-3/5 xl:w-1/2 sm:max-w-3xl sm:h-[90vh] sm:max-h-[800px] sm:rounded-2xl sm:shadow-2xl">
 
-    <!-- Chat Header -->
-    <div
-      class="relative flex-shrink-0 bg-gradient-to-br from-blue-600 to-blue-800 text-white p-5 shadow-md flex justify-between items-center">
+  <!-- Chat Header -->
+  <div
+    class="relative flex-shrink-0 bg-slate-900/70 backdrop-blur-sm text-white p-3 sm:p-4 border-b border-white/10 shadow-md flex justify-between items-center">
+    
+    <!-- Left side: Title on mobile, icons on desktop -->
+    <div class="flex items-center space-x-1">
+
+      
+      <!-- Desktop-only Icons -->
       <div class="flex items-center space-x-1">
-        <!-- Mute/Unmute Button -->
-        <button id="toggle-audio-btn"
-          class="w-10 h-10 flex items-center justify-center rounded-full transition-colors duration-200 hover:bg-white/15"
-          title="Toggle Audio">
-          <svg id="speaker-on-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
-            fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-            class="lucide lucide-volume-2">
-            <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" />
-            <path d="M15.54 8.46a5 5 0 0 1 0 7.07" />
-            <path d="M19.07 4.93a10 10 0 0 1 0 14.14" />
-          </svg>
-          <svg id="speaker-off-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
-            fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-            class="lucide lucide-volume-x hidden">
-            <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" />
-            <line x1="23" x2="17" y1="9" y2="15" />
-            <line x1="17" x2="23" y1="9" y2="15" />
-          </svg>
+        <button id="toggle-audio-btn" class="w-10 h-10 flex items-center justify-center rounded-full text-slate-400 transition-colors duration-200 hover:bg-white/10 hover:text-violet-400 focus:outline-none focus-visible:ring-2 focus-visible:ring-violet-400" title="Toggle Audio">
+          <svg id="speaker-on-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-volume-2"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/></svg>
+          <svg id="speaker-off-icon" xmlns="http://www.w.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-volume-x hidden"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><line x1="23" x2="17" y1="9" y2="15"/><line x1="17" x2="23" y1="9" y2="15"/></svg>
         </button>
-        <!-- Reset Chat Button -->
-        <button id="reset-chat-btn"
-          class="w-10 h-10 flex items-center justify-center rounded-full transition-colors duration-200 hover:bg-white/15"
-          title="Reset Chat">
-          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
-            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-            class="lucide lucide-rotate-cw">
-            <path d="M21 2v6h-6" />
-            <path d="M3 12a9 9 0 1 1 9 9 9.75 9.75 0 0 1-6.74-2.74L3 12" />
-          </svg>
+        <button id="reset-chat-btn" class="w-10 h-10 flex items-center justify-center rounded-full text-slate-400 transition-colors duration-200 hover:bg-white/10 hover:text-violet-400 focus:outline-none focus-visible:ring-2 focus-visible:ring-violet-400" title="Reset Chat">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-rotate-cw"><path d="M21 2v6h-6"/><path d="M3 12a9 9 0 1 1 9 9 9.75 9.75 0 0 1-6.74-2.74L3 12"/></svg>
         </button>
-      </div>
-      <h2 class="font-orbitron text-2xl absolute left-1/2 -translate-x-1/2">✨ AstroBot ✨</h2>
-      <div class="flex items-center space-x-2">
-        <button id="conversational-mode-btn" type="button"
-          class="px-3 py-1.5 text-sm text-white border border-white/70 rounded-full hover:bg-white/15 transition-colors">
-          Conversational Chat
-        </button>
-        <a href="{% url 'logout' %}"
-          class="py-1.5 px-4 border border-white/70 rounded-full text-white text-sm font-medium transition-colors duration-200 hover:bg-white/15 hover:border-white">Logout</a>
       </div>
     </div>
-
-    <!-- Chat Message Box -->
-    <div id="chat-box" class="flex-grow p-4 sm:p-6 overflow-y-auto flex flex-col gap-4 custom-scrollbar">
-      <!-- Messages are injected here by JavaScript -->
-    </div>
-
-    <!-- Chat Input Area -->
-    <div class="flex-shrink-0 flex flex-col p-3 sm:p-4 bg-gray-100 border-t border-gray-200">
-      <!-- Typing indicator will be placed here -->
-      <div id="typing-indicator-container" class="h-8"></div>
-      <div class="flex items-center gap-3">
-        <input type="text" id="user-input" placeholder="Type or press mic to talk..." autocomplete="off"
-          class="flex-grow bg-white border border-gray-300 rounded-full py-2.5 px-5 text-gray-800 text-base focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/50 transition-all duration-200 disabled:bg-gray-200 disabled:cursor-not-allowed">
-        <!-- Microphone Button -->
-        <button id="mic-btn" title="Speak"
-          class="flex-shrink-0 w-12 h-12 flex justify-center items-center bg-gray-200 text-gray-600 rounded-full cursor-pointer transition-colors duration-300 hover:bg-gray-300">
-          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
-            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z" />
-            <path d="M19 10v2a7 7 0 0 1-14 0v-2" />
-            <line x1="12" x2="12" y1="19" y2="22" />
-          </svg>
-        </button>
-        <button id="send-btn" title="Send"
-          class="flex-shrink-0 w-12 h-12 flex justify-center items-center bg-blue-600 text-white rounded-full cursor-pointer transition-colors duration-300 hover:bg-blue-700 disabled:bg-blue-400 disabled:cursor-not-allowed">
-          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
-            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <line x1="22" y1="2" x2="11" y2="13"></line>
-            <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
-          </svg>
-        </button>
-        <button onclick="window.location.href = '/finalResult/'"
-          class="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-lg">
-          Next
-        </button>
+    
+    <!-- Right side: Icons on mobile, text buttons on desktop -->
+    <div class="flex items-center space-x-2">
+      <button id="conversational-mode-btn" type="button" class="flex text-right justify-end items-right px-3 py-1.5 text-sm text-slate-300 bg-white/10 rounded-full hover:bg-white/20 transition-colors">
+        Conversational Chat
+      </button>
+      
+      <!-- Mobile-only Icons -->
+      <div class="flex items-center md:hidden">
+        <button id="toggle-audio-btn-mobile" class="w-10 h-10 flex items-center justify-center rounded-full text-slate-400 transition-colors duration-200 hover:bg-white/10 hover:text-violet-400" title="Toggle Audio"><!-- SVGs would be duplicated here or handled via JS --></button>
+        <button id="reset-chat-btn-mobile" class="w-10 h-10 flex items-center justify-center rounded-full text-slate-400 transition-colors duration-200 hover:bg-white/10 hover:text-violet-400" title="Reset Chat"><!-- SVGs would be duplicated here or handled via JS --></button>
       </div>
+
+      <a href="{% url 'logout' %}" class="py-1.5 px-3 bg-white/10 rounded-full text-slate-300 text-sm font-medium transition-colors duration-200 hover:bg-white/20 hover:text-white" title="Logout">
+        <!-- Show icon on mobile, text on desktop -->
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="sm:hidden"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" x2="9" y1="12" y2="12"/></svg>
+        <span class="hidden sm:inline">Logout</span>
+      </a>
     </div>
   </div>
 
-  <!-- Hidden form -->
-  <form method="post" id="astro-form" action="{% url 'astro' %}" class="hidden">
-    {% csrf_token %}
-    <input type="text" name="dob" id="hidden-dob">
-    <input type="text" name="tob" id="hidden-tob">
-    <input type="text" name="place" id="hidden-place">
-  </form>
 
-  <!-- Hidden Django response -->
-  {% if response %}
-  <div id="django-response" class="hidden">
-    <h2 class="text-xl font-semibold mb-3 font-orbitron">🪔 Your Astrological Report</h2>
-    <ul class="list-none space-y-4 text-left">
-      {% for point in response %}
-      <li>{{ point| safe}}</li>
-      {% endfor %}
-    </ul>
+  <!-- Chat Message Box -->
+  <div id="chat-box" class="flex-grow p-4 sm:p-6 overflow-y-auto flex flex-col gap-4 custom-scrollbar">
+    <!-- Messages are injected here by JavaScript -->
   </div>
-  {% endif %}
 
-  <button onclick="goNext()" class="bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-4 rounded-lg hidden">
-    Next
-  </button>
+  <!-- Chat Input Area -->
+  <div class="flex-shrink-0 flex flex-col p-2 sm:p-4 bg-slate-900/50 backdrop-blur-sm border-t border-white/10">
+    <div id="typing-indicator-container" class="h-8"></div>
+    <div class="flex items-center gap-2 sm:gap-3">
+      <input type="text" id="user-input" placeholder="Type or press mic to talk..." autocomplete="off"
+        class="flex-grow bg-slate-800/50 border border-slate-600 rounded-full py-2.5 px-4 sm:px-5 text-slate-200 text-base placeholder:text-slate-500 focus:outline-none focus:border-violet-500 focus:ring-2 focus:ring-violet-500/60 transition-all duration-200 disabled:bg-slate-800/20 disabled:cursor-not-allowed">
+
+      <button id="mic-btn" title="Speak"
+        class="flex-shrink-0 w-11 h-11 sm:w-12 sm:h-12 flex justify-center items-center bg-slate-700 text-slate-400 rounded-full cursor-pointer transition-colors duration-300 hover:bg-slate-600">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" x2="12" y1="19" y2="22"/></svg>
+      </button>
+
+      <button id="send-btn" title="Send"
+        class="flex-shrink-0 w-11 h-11 sm:w-12 sm:h-12 flex justify-center items-center bg-gradient-to-r from-violet-600 to-fuchsia-500 text-white rounded-full cursor-pointer transition-transform duration-300 transform hover:scale-110 hover:shadow-lg hover:shadow-violet-500/40 disabled:from-slate-600 disabled:to-slate-700 disabled:cursor-not-allowed disabled:scale-100 disabled:shadow-none">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
+      </button>
+
+      <button onclick="window.location.href = '/finalResult/'"
+        class="bg-gradient-to-r from-violet-600 to-fuchsia-500 hover:shadow-lg hover:shadow-violet-500/40 text-white font-semibold py-2.5 px-4 sm:px-5 rounded-full transition-all duration-300 transform hover:scale-105">
+        Next
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Hidden form and response remain the same -->
+<form method="post" id="astro-form" action="{% url 'astro' %}" class="hidden">
+  {% csrf_token %}
+  <input type="text" name="dob" id="hidden-dob">
+  <input type="text" name="tob" id="hidden-tob">
+  <input type="text" name="place" id="hidden-place">
+</form>
+
+{% if response %}
+<div id="django-response" class="hidden">
+  <h2 class="text-xl font-semibold mb-3 font-orbitron text-slate-100">🪔 Your Astrological Report</h2>
+  <ul class="list-none space-y-4 text-left text-slate-300">
+    {% for point in response %}
+    <li>{{ point| safe}}</li>
+    {% endfor %}
+  </ul>
+</div>
+{% endif %}
+
+<button onclick="goNext()" class="mt-4 bg-gradient-to-r from-violet-600 to-fuchsia-500 hover:shadow-lg hover:shadow-violet-500/40 text-white font-semibold py-3 px-8 rounded-full transition-all duration-300 transform hover:scale-105 hidden">
+  Next
+</button>
+
+<!-- NOTE: The mobile-only icon buttons were left empty. You would need JavaScript to either duplicate the functionality of the desktop buttons or to dynamically move them. A simple approach is to have duplicate IDs and handle them together in your JS. Example: document.querySelectorAll('[id^="toggle-audio-btn"]').forEach(...) -->
 
   <script>
     function goNext() {

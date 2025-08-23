@@ -15,39 +15,68 @@
             from { opacity: 0; transform: translateY(10px); }
             to { opacity: 1; transform: translateY(0); }
         }
+        /* Add this to your main CSS file or in a <style> tag */
+.animated-gradient-bg {
+  background: linear-gradient(135deg, #1e1b4b, #4338ca, #be185d, #0f172a);
+  background-size: 300% 300%;
+  animation: gradient-flow 20s ease-in-out infinite;
+}
+@keyframes gradient-flow {
+  0%   { background-position: 0% 50%; }
+  50%  { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+/* Optional: Add a fade-in animation class */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.fade-in {
+  animation: fadeIn 0.5s ease-out forwards;
+}
     </style>
 </head>
 <body class="bg-gradient-to-br from-gray-100 to-white min-h-screen flex items-center justify-center p-6">
 
-    <!-- Spinner (shown on load) -->
+<!-- 
+  RECOMMENDED BODY SETUP for a full-page cosmic background:
+  <body class="animated-gradient-bg min-h-screen w-full flex items-center justify-center p-4">
+-->
+
+<!-- This wrapper helps center the content vertically and horizontally -->
+<div class="w-full">
+    <!-- Spinner (Re-themed for Cosmic UI) -->
     <div id="loader" class="flex flex-col items-center justify-center text-center">
-        <svg class="animate-spin h-12 w-12 text-blue-600 mb-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+        <svg class="animate-spin h-12 w-12 text-violet-400 mb-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
             <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"></path>
+            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
         </svg>
-        <p class="text-lg text-gray-600 font-medium">Preparing your final result...</p>
+        <p class="text-lg text-slate-300 font-medium">Aligning the stars for your summary...</p>
     </div>
 
-    <!-- Final response (initially hidden) -->
-    <div id="result" class="hidden max-w-3xl mx-auto bg-white shadow-xl rounded-xl p-8 fade-in">
-        <h1 class="text-2xl font-semibold text-blue-700 mb-4 text-center">📝 Final Personality & Astro Summary</h1>
-        <div class="text-gray-800 leading-relaxed text-lg whitespace-pre-line" id="finalResponse">
+    <!-- Final response (Styled with Glassmorphism) -->
+    <div id="result" class="hidden w-full max-w-3xl mx-auto bg-slate-900/50 backdrop-blur-lg border border-white/10 shadow-2xl rounded-2xl p-6 sm:p-8 fade-in">
+        <h1 class="text-2xl sm:text-3xl font-orbitron font-bold text-slate-100 mb-6 text-center">🔮 Your Cosmic Blueprint 🔮</h1>
+        <div class="text-slate-300 leading-loose text-lg whitespace-pre-line max-h-[50vh] overflow-y-auto pr-2 custom-scrollbar" id="finalResponse">
             {{ final_response }}
         </div>
         
         <!-- Buttons Container -->
-        <div class="flex justify-between items-center mt-8 pt-4 border-t border-gray-200">
+        <div class="flex flex-col sm:flex-row justify-between items-center mt-8 pt-6 border-t border-white/10 gap-4">
             <!-- Read Aloud Button -->
-            <button id="readAloudButton" class="bg-green-500 text-white font-bold py-2 px-4 rounded-lg hover:bg-green-600 transition">
+            <button id="readAloudButton" class="flex items-center gap-2 bg-white/10 text-slate-300 font-bold py-2 px-5 rounded-full hover:bg-white/20 transition-colors duration-200">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/></svg>
                 Read Aloud
             </button>
             
-            <!-- Start Analysis Button (in the corner) -->
-            <button id="startAnalysisButton" class="bg-blue-600 text-white font-bold py-2 px-4 rounded-lg shadow-lg hover:bg-blue-700 transition-transform transform hover:scale-105">
+            <!-- Start Analysis Button (Primary glowing CTA) -->
+            <button id="startAnalysisButton" class="w-full sm:w-auto bg-gradient-to-r from-violet-600 to-fuchsia-500 text-white font-bold py-3 px-6 rounded-full shadow-lg hover:shadow-violet-500/40 transition-all duration-300 transform hover:scale-105">
                 Start Analysis Again
             </button>
         </div>
     </div>
+</div>
 
     <script>
         window.addEventListener('DOMContentLoaded', () => {
