@@ -40,12 +40,12 @@
     }
 
     .custom-scrollbar::-webkit-scrollbar-thumb {
-      background-color: #ccc;
+      background-color: #1f1616ff;
       border-radius: 10px;
     }
 
     .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-      background-color: #aaa;
+      background-color: #140b0bfe;
     }
 
     @keyframes pop-in {
@@ -159,11 +159,11 @@
       
       <!-- Mobile-only Icons -->
       <div class="flex items-center md:hidden">
-        <button id="toggle-audio-btn-mobile" class="w-10 h-10 flex items-center justify-center rounded-full text-slate-400 transition-colors duration-200 hover:bg-white/10 hover:text-violet-400" title="Toggle Audio"><!-- SVGs would be duplicated here or handled via JS --></button>
-        <button id="reset-chat-btn-mobile" class="w-10 h-10 flex items-center justify-center rounded-full text-slate-400 transition-colors duration-200 hover:bg-white/10 hover:text-violet-400" title="Reset Chat"><!-- SVGs would be duplicated here or handled via JS --></button>
+        <button id="toggle-audio-btn-mobile" class="w-10 h-10 flex items-center justify-center rounded-full text-black transition-colors duration-200 hover:bg-white/10 hover:text-violet-400" title="Toggle Audio"><!-- SVGs would be duplicated here or handled via JS --></button>
+        <button id="reset-chat-btn-mobile" class="w-10 h-10 flex items-center justify-center rounded-full text-black transition-colors duration-200 hover:bg-white/10 hover:text-violet-400" title="Reset Chat"><!-- SVGs would be duplicated here or handled via JS --></button>
       </div>
 
-      <a href="{% url 'logout' %}" class="py-1.5 px-3 bg-white/10 rounded-full text-slate-300 text-sm font-medium transition-colors duration-200 hover:bg-white/20 hover:text-white" title="Logout">
+      <a href="{% url 'logout' %}" class="py-1.5 px-3 bg-white/10 rounded-full text-black text-sm font-medium transition-colors duration-200 hover:bg-white/20 hover:text-white" title="Logout">
         <!-- Show icon on mobile, text on desktop -->
         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="sm:hidden"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" x2="9" y1="12" y2="12"/></svg>
         <span class="hidden sm:inline">Logout</span>
@@ -294,7 +294,7 @@
         if (sender === 'user') {
           messageElement.classList.add(...baseClasses, 'bg-blue-600', 'text-white', 'self-end', 'rounded-br-lg');
         } else {
-          messageElement.classList.add(...baseClasses, 'bg-gray-200', 'text-gray-800', 'self-start', 'rounded-bl-lg');
+          messageElement.classList.add(...baseClasses, 'bg-gray-200', 'text-black', 'self-start', 'rounded-bl-lg');
           speakMessage(text);
         }
         messageElement.innerHTML = text;
