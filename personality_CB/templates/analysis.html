@@ -4,292 +4,262 @@
   <meta charset="utf-8" />
   <title>Astro Chat</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <script src="https://cdn.tailwindcss.com"></script>
   <style>
-    /* === merged CSS === */
-    :root { color-scheme: light; }
-    * { box-sizing: border-box; }
-    
     body {
       margin: 0;
-      font-family: system-ui, Arial, sans-serif;
       min-height: 100vh;
-      background: linear-gradient(135deg, #8cd198, #fbc2eb);
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      padding: 16px;
+    }
+
+    @keyframes fade-in-slide-up {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .message-bubble { animation: fade-in-slide-up 0.3s ease-out; }
+
+    .animated-gradient-bg {
+      background: linear-gradient(
+        120deg,
+        #1e1b4b, /* indigo-950 */
+        #4338ca, /* violet-700 */
+        #be185d, /* fuchsia-700 */
+        #0f172a  /* slate-900 */
+      );
+      background-size: 300% 300%;
+      animation: gradient-flow 20s ease-in-out infinite;
+    }
+
+    @keyframes gradient-flow {
+      0%   { background-position: 0% 50%; }
+      50%  { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
     }
     
-    .wrap {
-      width: 100%;
-      max-width: 720px;
-      height: 90vh;
-      max-height: 850px;
-      margin: 0;
-      padding: 0;
-      display: flex;
-      flex-direction: column;
-      background: rgba(255, 255, 255, 0.95);
-      backdrop-filter: blur(10px);
-      border-radius: 20px;
-      box-shadow: 0 10px 30px rgba(0,0,0,.2);
-      overflow: hidden;
-      border: 1px solid rgba(255, 255, 255, 0.2);
+    .custom-scrollbar::-webkit-scrollbar { width: 8px; }
+    .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+    .custom-scrollbar::-webkit-scrollbar-thumb {
+      background-color: rgba(255, 255, 255, 0.2);
+      border-radius: 10px;
+      border: 2px solid transparent;
+      background-clip: content-box;
     }
-
-    .header-wrap {
-      flex-shrink: 0;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      background: linear-gradient(to right, #4f46e5, #818cf8);
-      color: white;
-      padding: 16px 20px;
-      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-      z-index: 10;
-    }
-    h1 {
-      margin: 0;
-      font-weight: 700;
-      font-size: 1.4rem;
-    }
-    .header-actions { display: flex; align-items: center; gap: 12px; }
-
-    #chatbox {
-      flex-grow: 1;
-      overflow-y: auto;
-      background: transparent;
-      padding: 16px;
-      box-shadow: none;
-      margin-bottom: 0;
-      height: auto;
-    }
-    .bubble { max-width: 80%; padding: 10px 14px; margin: 8px 0; border-radius: 16px; white-space: pre-wrap; line-height: 1.4; }
-    .bubble.me { background: #4f46e5; color: #fff; margin-left: auto; border-bottom-right-radius: 4px; }
-    .bubble.bot { background: #e5e7eb; color: #1f2937; margin-right: auto; border-bottom-left-radius: 4px; }
-
-    form { display: flex; gap: 8px; align-items: center; flex-shrink: 0; padding: 12px; background: #f3f4f6; border-top: 1px solid #e5e7eb; }
-    input[type="text"] {
-      flex: 1; padding: 12px; border-radius: 10px; border: 1px solid #d1d5db; background: #fff; color: #111827;
-      outline: none; font-size: 1rem; transition: border-color .2s, box-shadow .2s;
-    }
-    input[type="text"]::placeholder { color:#9ca3af; }
-    input[type="text"]:focus { border-color: #4f46e5; box-shadow: 0 0 0 2px rgba(79, 70, 229, 0.2); }
-
-    button {
-      padding: 12px 16px; border: 0; border-radius: 10px; background:#4f46e5; color:white; font-weight:600; cursor:pointer;
-      transition: opacity .15s ease-in-out, transform .02s, background-color .15s ease;
-      display: flex; align-items: center; justify-content: center;
-    }
-    button:hover { background-color: #4338ca; }
-    button:disabled { opacity:.6; cursor: not-allowed; background-color: #9ca3af; }
-    button:active { transform: translateY(1px); }
-
-    .icon-btn { border-radius: 50%; width: 44px; height: 44px; padding: 0; }
-    .header-wrap .icon-btn { background: transparent; color: white; }
-    .header-wrap .icon-btn:hover { background: rgba(255, 255, 255, 0.15); }
-    form .icon-btn { background: #e5e7eb; color: #4b5563; }
-    form .icon-btn:hover { background: #d1d5db; }
-    form .icon-btn.is-listening { background: #ef4444; color: white; animation: pulse 1.5s infinite; }
-    .icon-btn svg { fill: currentColor; }
-
-    @keyframes pulse {
-      0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); }
-      70% { box-shadow: 0 0 0 10px rgba(239, 68, 68, 0); }
-      100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
-    }
-
-    .styled-btn {
-      display: inline-block; padding: 8px 14px; color: white; text-decoration: none; border: 1px solid rgba(255, 255, 255, 0.4);
-      border-radius: 8px; font-weight: 600; font-size: 0.9rem; transition: background-color .15s ease;
-      background: rgba(255, 255, 255, 0.1);
-    }
-    .styled-btn:hover { background-color: rgba(255, 255, 255, 0.2); }
-    .styled-btn.is-active { background-color: #16a34a; border-color: #16a34a; }
+    .custom-scrollbar::-webkit-scrollbar-thumb:hover { background-color: rgba(255, 255, 255, 0.4); }
   </style>
 </head>
-<body>
-  <div class="wrap">
-    <div class="header-wrap">
-      <h1>🔮 Astro Chat</h1>
-      <div class="header-actions">
-        <button id="convoModeBtn" type="button" class="styled-btn">Talk Mode</button>
-        <button id="muteBtn" type="button" class="icon-btn" title="Mute/Unmute">
-          <!-- SVG icons will be injected by JS -->
+<body class="animated-gradient-bg sm:flex sm:items-center sm:justify-center sm:min-h-screen sm:p-4">
+  <div class="relative w-full md:w-2/3 h-screen mx-auto sm:rounded-2xl sm:shadow-2xl flex flex-col overflow-hidden">
+    
+    <!-- Header -->
+    <div class="p-4 border-b border-white/10 flex items-center justify-between bg-slate-900/70 backdrop-blur-sm sm:rounded-t-2xl sticky top-0 z-10">
+      <h1 class="text-xl font-bold text-slate-100 tracking-tight">🔮 Astro Chat</h1>
+      <div class="flex items-center space-x-2">
+        <button id="conversational-mode-btn" type="button" class="flex items-center space-x-2 px-4 py-2 text-sm font-medium text-slate-300 bg-white/10 hover:bg-white/20 rounded-full transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-violet-400" title="Toggle Conversational Mode">
+          <svg xmlns="http://www.w.org/2000/svg" class="h-5 w-5 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" /></svg>
+          <span>Talk Mode</span>
         </button>
-        <a href="{% url 'logout' %}" class="styled-btn">Logout</a>
+        <button id="voice-toggle-btn" type="button" class="p-2 text-slate-400 hover:bg-white/10 hover:text-violet-400 rounded-full transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-violet-400" title="Toggle Voice Output">
+            <svg id="voice-on-icon" xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" /></svg>
+            <svg id="voice-off-icon" xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" clip-rule="evenodd" /><path stroke-linecap="round" stroke-linejoin="round" d="M17 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2" /></svg>
+        </button>
+        <a href="{% url 'logout' %}" class="p-2 text-slate-400 hover:bg-white/10 hover:text-violet-400 rounded-full transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-violet-400" title="Logout">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" /></svg>
+        </a>
       </div>
     </div>
 
-    <div id="chatbox" aria-live="polite"></div>
+    <div id="chat-history" class="animated-gradient-bg flex-1 p-6 space-y-4 overflow-y-auto custom-scrollbar" aria-live="polite"></div>
 
-    <form id="chatForm" method="post" autocomplete="off">
-      {% csrf_token %}
-      <button id="micBtn" type="button" class="icon-btn" title="Use Voice Input">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="20" height="20"><path d="M12 14a2 2 0 0 0 2-2V6a2 2 0 1 0-4 0v6a2 2 0 0 0 2 2zm-2.12-8.12a4 4 0 0 1 8.24 0V12a4 4 0 1 1-8.24 0V5.88zM12 18.5a5.5 5.5 0 0 1-5.5-5.5h-1A6.5 6.5 0 0 0 12 19.5a6.5 6.5 0 0 0 6.5-6.5h-1A5.5 5.5 0 0 1 12 18.5z"/><path d="M12 21a1 1 0 0 1-1-1v-2a1 1 0 1 1 2 0v2a1 1 0 0 1-1 1z"/></svg>
-      </button>
-      <input id="msg" name="message" type="text" placeholder="Type or press the mic..." />
-      <button id="sendBtn" type="submit">Send</button>
-    </form>
+    <div id="action-area" class="p-4 border-t border-white/10 bg-slate-900/50 backdrop-blur-sm sm:rounded-b-2xl">
+      <div id="typing-indicator" class="h-10 flex items-center mb-1 hidden">
+         <div class="inline-flex items-center space-x-2 bg-slate-800/80 rounded-full px-4 py-2">
+            <div class="w-2.5 h-2.5 bg-violet-400 rounded-full animate-pulse"></div>
+            <div class="w-2.5 h-2.5 bg-violet-400 rounded-full animate-pulse [animation-delay:0.2s]"></div>
+            <div class="w-2.5 h-2.5 bg-violet-400 rounded-full animate-pulse [animation-delay:0.4s]"></div>
+            <span class="text-sm font-medium text-slate-400">Bot is typing...</span>
+          </div>
+      </div>
+      <form id="chat-form" method="post" autocomplete="off" class="relative flex items-center">
+        {% csrf_token %}
+        <button id="mic-btn" type="button" class="absolute left-2 p-2 text-gray-400 hover:text-purple-600 transition-colors rounded-full focus:outline-none focus-visible:ring-2 focus-visible:ring-purple-400" title="Use Voice Input">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" /></svg>
+        </button>
+        <input id="user-input" name="message" type="text" placeholder="Type or press the mic..." class="w-full py-3 pl-12 pr-16 text-gray-800 bg-white border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-purple-400 placeholder:text-gray-500 disabled:bg-gray-200" />
+        <button id="send-btn" type="submit" class="absolute right-2 p-2 bg-purple-600 text-white rounded-full hover:bg-purple-700 transition-colors disabled:bg-purple-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-purple-500" title="Send">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" viewBox="0 0 20 20" fill="currentColor"><path d="M10.894 2.553a1 1 0 00-1.788 0l-7 14a1 1 0 001.169 1.409l5-1.428A1 1 0 009 15.571V11a1 1 0 112 0v4.571a1 1 0 00.725.962l5 1.428a1 1 0 001.17-1.408l-7-14z" /></svg>
+        </button>
+      </form>
+    </div>
   </div>
 
   <script>
-    // === merged JS (No changes to logic) ===
+    document.addEventListener('DOMContentLoaded', () => {
+        // --- DOM Elements & State ---
+        const chatHistory = document.getElementById('chat-history');
+        const form = document.getElementById('chat-form');
+        const input = document.getElementById('user-input');
+        const sendBtn = document.getElementById('send-btn');
+        const micBtn = document.getElementById('mic-btn');
+        const voiceToggleBtn = document.getElementById('voice-toggle-btn');
+        const voiceOnIcon = document.getElementById('voice-on-icon');
+        const voiceOffIcon = document.getElementById('voice-off-icon');
+        const convoModeBtn = document.getElementById('conversational-mode-btn');
+        const typingIndicator = document.getElementById('typing-indicator');
 
-    // --- DOM Elements & State ---
-    const chatbox = document.getElementById('chatbox');
-    const form = document.getElementById('chatForm');
-    const input = document.getElementById('msg');
-    const sendBtn = document.getElementById('sendBtn');
-    const micBtn = document.getElementById('micBtn');
-    const muteBtn = document.getElementById('muteBtn');
-    const convoModeBtn = document.getElementById('convoModeBtn');
+        let isVoiceEnabled = true;
+        let isConversationalMode = false;
+        const csrftoken = getCookie('csrftoken');
 
-    let isMuted = false;
-    let isConversationalMode = false;
-    const csrftoken = getCookie('csrftoken');
+        // --- Helper Functions ---
+        function getCookie(name) {
+            const value = `; ${document.cookie}`;
+            const parts = value.split(`; ${name}=`);
+            if (parts.length === 2) return parts.pop().split(';').shift();
+        }
 
-    const icons = {
-      speaker: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="24" height="24"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3A4.5 4.5 0 0 0 14 7.97v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/></svg>`,
-      mute: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="24" height="24"><path d="M16.5 12A4.5 4.5 0 0 0 14 7.97v2.21l2.45 2.45c.03-.2.05-.41.05-.63zm2.5 0c0 .94-.2 1.82-.54 2.64l1.51 1.51A8.796 8.796 0 0 0 21 12c0-4.28-2.99-7.86-7-8.77v2.06c2.89.86 5 3.54 5 6.71zM4.27 3L3 4.27 7.73 9H3v6h4l5 5v-6.73l4.25 4.25c-.67.52-1.42.93-2.25 1.18v2.06a8.99 8.99 0 0 0 3.69-1.81L19.73 21 21 19.73l-9-9L4.27 3zM12 4L9.91 6.09 12 8.18V4z"/></svg>`
-    };
-    muteBtn.innerHTML = icons.speaker;
+        const scrollToBottom = () => chatHistory.scrollTo({ top: chatHistory.scrollHeight, behavior: 'smooth' });
+        const showTyping = (show) => {
+            typingIndicator.classList.toggle('hidden', !show);
+            if (show) scrollToBottom();
+        };
 
-    // --- Helper Functions ---
-    function getCookie(name) {
-      const value = `; ${document.cookie}`;
-      const parts = value.split(`; ${name}=`);
-      if (parts.length === 2) return parts.pop().split(';').shift();
-    }
+        function addMessage(text, sender) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `flex ${sender === 'user' ? 'justify-end' : 'justify-start'}`;
+            const bubble = document.createElement('div');
+            bubble.className = `p-3 rounded-2xl max-w-[85%] shadow-sm message-bubble whitespace-pre-wrap ${sender === 'user' ? 'bg-purple-600 text-white rounded-br-none' : 'bg-purple-100 text-gray-800 rounded-bl-none'}`;
+            bubble.textContent = text;
+            messageDiv.appendChild(bubble);
+            chatHistory.appendChild(messageDiv);
+            scrollToBottom();
+            if (sender === 'bot') speak(text);
+        }
 
-    function addBubble(text, who) {
-      const div = document.createElement('div');
-      div.className = `bubble ${who}`;
-      div.textContent = text;
-      chatbox.appendChild(div);
-      chatbox.scrollTop = chatbox.scrollHeight;
-    }
-
-    // --- Speech Synthesis (Text-to-Speech) ---
-    function speak(text) {
-        if (isMuted || !('speechSynthesis' in window)) return;
-        speechSynthesis.cancel();
-        const utterance = new SpeechSynthesisUtterance(text);
-        utterance.rate = 1.0;
-        utterance.pitch = 1.0;
-        speechSynthesis.speak(utterance);
-    }
-
-    muteBtn.addEventListener('click', () => {
-        isMuted = !isMuted;
-        muteBtn.innerHTML = isMuted ? icons.mute : icons.speaker;
-        if (isMuted) {
+        // --- Speech Synthesis (Text-to-Speech) ---
+        function speak(text) {
+            if (!isVoiceEnabled || !('speechSynthesis' in window)) return;
             speechSynthesis.cancel();
+            const utterance = new SpeechSynthesisUtterance(text);
+            speechSynthesis.speak(utterance);
         }
-    });
 
-    // --- Speech Recognition (Speech-to-Text) & Conversational Mode ---
-    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-    if (SpeechRecognition) {
-      const recognition = new SpeechRecognition();
-      recognition.continuous = true;
-      recognition.lang = 'en-US';
-      recognition.interimResults = false;
-
-      micBtn.addEventListener('click', () => {
-        if (isConversationalMode) return;
-        recognition.start();
-      });
-      
-      convoModeBtn.addEventListener('click', () => {
-        isConversationalMode = !isConversationalMode;
-        if(isConversationalMode) {
-            convoModeBtn.classList.add('is-active');
-            input.style.display = 'none';
-            sendBtn.style.display = 'none';
-            recognition.start();
-        } else {
-            convoModeBtn.classList.remove('is-active');
-            input.style.display = 'flex';
-            sendBtn.style.display = 'flex';
-            recognition.stop();
-        }
-      });
-
-      recognition.onstart = () => { micBtn.classList.add('is-listening'); };
-      recognition.onend = () => {
-        micBtn.classList.remove('is-listening');
-        if (isConversationalMode) { recognition.start(); }
-      };
-
-      recognition.onresult = (event) => {
-        const transcript = event.results[event.results.length - 1][0].transcript.trim();
-        if (transcript) {
-            input.value = transcript;
-            form.requestSubmit();
-        }
-      };
-
-      recognition.onerror = (event) => {
-        console.error('Speech recognition error', event.error);
-        if (event.error === 'no-speech' && isConversationalMode) { return; }
-        addBubble(`Sorry, I couldn't understand. Error: ${event.error}`, 'bot');
-      };
-
-    } else {
-      micBtn.style.display = 'none';
-      muteBtn.style.display = 'none';
-      convoModeBtn.style.display = 'none';
-    }
-
-    // --- Main Chat Logic ---
-    form.addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const text = input.value.trim();
-      if (!text) return;
-
-      addBubble(text, 'me');
-      input.value = '';
-      addBubble('…thinking', 'bot');
-      sendBtn.disabled = true;
-      micBtn.disabled = true;
-      convoModeBtn.disabled = true;
-
-      try {
-        const formData = new FormData();
-        formData.append('message', text);
-        const endpoint = "{% url 'chat_api' %}";
-
-        const res = await fetch(endpoint, {
-          method: 'POST',
-          headers: { 'X-CSRFToken': csrftoken },
-          body: formData
+        voiceToggleBtn.addEventListener('click', () => {
+            isVoiceEnabled = !isVoiceEnabled;
+            voiceOnIcon.classList.toggle('hidden');
+            voiceOffIcon.classList.toggle('hidden');
+            if (!isVoiceEnabled) {
+                speechSynthesis.cancel();
+            }
         });
 
-        const data = await res.json();
-        const replyText = data.reply || 'No reply';
-        chatbox.lastChild.textContent = replyText;
-        chatbox.lastChild.className = 'bubble bot';
-        speak(replyText);
-
-      } catch (err) {
-        chatbox.lastChild.textContent = 'Error contacting server';
-      } finally {
-        sendBtn.disabled = false;
+        // --- Speech Recognition (Speech-to-Text) & Conversational Mode ---
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
         if (SpeechRecognition) {
-            micBtn.disabled = false;
-            convoModeBtn.disabled = false;
-        }
-        input.focus();
-      }
-    });
+            const recognition = new SpeechRecognition();
+            recognition.continuous = true;
+            recognition.lang = 'en-US';
+            recognition.interimResults = false;
 
-    // Optional: submit with Enter from the input
-    input.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter' && !e.shiftKey) {
-        e.preventDefault();
-        form.requestSubmit();
-      }
+            micBtn.addEventListener('click', () => {
+                if (isConversationalMode) return;
+                try { recognition.start(); } catch(e) {}
+            });
+            
+            convoModeBtn.addEventListener('click', () => {
+                isConversationalMode = !isConversationalMode;
+                convoModeBtn.classList.toggle('bg-white/20', isConversationalMode);
+                convoModeBtn.querySelector('span').textContent = isConversationalMode ? 'Manual Mode' : 'Talk Mode';
+                
+                if (isConversationalMode) {
+                    try { recognition.start(); } catch(e) {}
+                } else {
+                    recognition.stop();
+                }
+            });
+
+            recognition.onstart = () => { micBtn.firstElementChild.classList.add('text-purple-600', 'animate-pulse'); };
+            recognition.onend = () => {
+                micBtn.firstElementChild.classList.remove('text-purple-600', 'animate-pulse');
+                if (isConversationalMode) { 
+                    try { recognition.start(); } catch(e) {}
+                }
+            };
+
+            recognition.onresult = (event) => {
+                const transcript = event.results[event.results.length - 1][0].transcript.trim();
+                if (transcript) {
+                    input.value = transcript;
+                    form.requestSubmit();
+                }
+            };
+
+            recognition.onerror = (event) => {
+                console.error('Speech recognition error', event.error);
+                if (event.error === 'no-speech' && isConversationalMode) return;
+                addMessage(`Sorry, I couldn't understand. Error: ${event.error}`, 'bot');
+            };
+        } else {
+            micBtn.style.display = 'none';
+            voiceToggleBtn.style.display = 'none';
+            convoModeBtn.style.display = 'none';
+        }
+
+        // --- Main Chat Logic ---
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const text = input.value.trim();
+            if (!text) return;
+
+            addMessage(text, 'user');
+            input.value = '';
+            showTyping(true);
+            
+            sendBtn.disabled = true;
+            micBtn.disabled = true;
+            convoModeBtn.disabled = true;
+            input.disabled = true;
+
+            try {
+                const formData = new FormData();
+                formData.append('message', text);
+                const endpoint = "{% url 'chat_api' %}";
+
+                const res = await fetch(endpoint, {
+                    method: 'POST',
+                    headers: { 'X-CSRFToken': csrftoken },
+                    body: formData
+                });
+                
+                if (!res.ok) throw new Error(`Server error: ${res.status}`);
+
+                const data = await res.json();
+                const replyText = data.reply || 'Sorry, I could not process that.';
+                showTyping(false);
+                addMessage(replyText, 'bot');
+
+            } catch (err) {
+                console.error("Fetch error:", err);
+                showTyping(false);
+                addMessage('Error: Could not connect to the server. Please try again.', 'bot');
+            } finally {
+                sendBtn.disabled = false;
+                micBtn.disabled = false;
+                convoModeBtn.disabled = false;
+                input.disabled = false;
+                input.focus();
+            }
+        });
+
+        input.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                form.requestSubmit();
+            }
+        });
+
+        // Initial welcome message
+        setTimeout(() => {
+          addMessage("Hello! I am your Astro Chat assistant. How can I help you with your astrological queries today?", "bot");
+        }, 500);
     });
   </script>
 </body>
